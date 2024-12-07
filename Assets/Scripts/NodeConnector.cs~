@@ -1,0 +1,142 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class NodeConnector : MonoBehaviour
+{
+    [Header("References")]
+    public GameManager gameManager;    // Reference to GameManager script
+    public GameObject gridParent;     // Parent object for grid cells
+
+    private List<Vector2Int> currentPath = new List<Vector2Int>(); // Stores the current path being drawn
+    private Dictionary<string, List<Vector2Int>> completedPaths = new Dictionary<string, List<Vector2Int>>(); // Completed paths for each color
+    private bool isDrawing = false; // Whether the player is currently drawing a path
+    private string currentColor;   // Color of the current path
+
+    void Update()
+    {
+        // Check for mouse interaction
+        if (Input.GetMouseButtonDown(0))
+        {
+            StartPath();
+        }
+        else if (Input.GetMouseButton(0) && isDrawing)
+        {
+            UpdatePath();
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            EndPath();
+        }
+    }
+
+    private void StartPath()
+    {
+        // Detect the grid cell under the mouse
+        Vector2Int cellPosition = GetCellUnderMouse();
+        if (cellPosition == Vector2Int.one * -1) return;
+
+        // Check if the cell is a valid start node
+        foreach (var node in gameManager.gameData.levels[0].nodes) // Assuming level 0 is active
+        {
+            if (node.start[0] == cellPosition.x && node.start[1] == cellPosition.y)
+            {
+                isDrawing = true;
+                currentColor = node.color;
+                currentPath.Clear();
+                currentPath.Add(cellPosition);
+                return;
+            }
+        }
+    }
+
+    private void UpdatePath()
+    {
+        // Detect the grid cell under the mouse
+        Vector2Int cellPosition = GetCellUnderMouse();
+        if (cellPosition == Vector2Int.one * -1) return;
+
+        // Add the cell to the current path if it's not already in the path
+        if (!currentPath.Contains(cellPosition))
+        {
+            currentPath.Add(cellPosition);
+
+            // Visualize the path
+            string cellName = $"Cell ({cellPosition.x},{cellPosition.y})";
+            Transform cellTransform = gridParent.transform.Find(cellName);
+            if (cellTransform != null)
+            {
+                Image cellImage = cellTransform.GetComponent<Image>();
+                if (cellImage != null)
+                {
+                    Color nodeColor;
+                    if (ColorUtility.TryParseHtmlString(currentColor, out nodeColor))
+                    {
+                        cellImage.color = nodeColor;
+                    }
+                }
+            }
+        }
+    }
+
+    private void EndPath()
+    {
+        isDrawing = false;
+
+        if (currentPath.Count < 2) return;
+
+        // Check if the path ends at the correct end node
+        foreach (var node in gameManager.gameData.levels[0].nodes) // Assuming level 0 is active
+        {
+            if (node.color == currentColor &&
+                node.end[0] == currentPath[^1].x && node.end[1] == currentPath[^1].y)
+            {
+                completedPaths[currentColor] = new List<Vector2Int>(currentPath);
+                Debug.Log($"Completed path for color {currentColor}!");
+                return;
+            }
+        }
+
+        // Reset the path if invalid
+        ResetPath();
+    }
+
+    private void ResetPath()
+    {
+        foreach (var position in currentPath)
+        {
+            string cellName = $"Cell ({position.x},{position.y})";
+            Transform cellTransform = gridParent.transform.Find(cellName);
+            if (cellTransform != null)
+            {
+                Image cellImage = cellTransform.GetComponent<Image>();
+                if (cellImage != null)
+                {
+                    cellImage.color = Color.white; // Reset to default color
+                }
+            }
+        }
+
+        currentPath.Clear();
+    }
+
+    private Vector2Int GetCellUnderMouse()
+    {
+        // Convert mouse position to grid cell position
+        Vector2 mousePosition = Input.mousePosition;
+        foreach (Transform cell in gridParent.transform)
+        {
+            RectTransform rectTransform = cell.GetComponent<RectTransform>();
+            if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, mousePosition))
+            {
+                string[] cellNameParts = cell.name.Replace("Cell (", "").Replace(")", "").Split(',');
+                int x = int.Parse(cellNameParts[0]);
+                int y = int.Parse(cellNameParts[1]);
+                return new Vector2Int(x, y);
+            }
+        }
+
+        return Vector2Int.one * -1; // Return invalid position if no cell is found
+    }
+}

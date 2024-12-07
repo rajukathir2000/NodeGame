@@ -1,0 +1,22 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GridCreator : MonoBehaviour
+{
+    public GameObject cellPrefab; // Prefab for a grid cell (Button/Image)
+    public Transform gridParent;  // The parent object (GridBoard)
+
+    void Start()
+    {
+        CreateGrid(5, 5); // Create a 5x5 grid
+    }
+
+    void CreateGrid(int rows, int columns)
+    {
+        for (int i = 0; i < rows * columns; i++)
+        {
+            GameObject cell = Instantiate(cellPrefab, gridParent);
+            // Optionally, you can set up each cell here (like adding text or changing colors)
+        }
+    }
+}

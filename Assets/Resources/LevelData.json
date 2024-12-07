@@ -1,0 +1,66 @@
+{
+    "levels": [
+        {
+            "levelNumber": 1,
+            "gridSize": 5,
+            "nodes": [
+                {
+                    "color": "Red",
+                    "start": [ 0, 2 ],
+                    "end": [ 2, 0 ]
+                },
+                {
+                    "color": "Green",
+                    "start": [ 0, 3 ],
+                    "end": [ 3, 2 ]
+                },
+                {
+                    "color": "Blue",
+                    "start": [ 0, 4 ],
+                    "end": [ 4, 3 ]
+                },
+                {
+                    "color": "Orange",
+                    "start": [ 1, 2 ],
+                    "end": [ 2, 2 ]
+                },
+                {
+                    "color": "Purple",
+                    "start": [ 4, 0 ],
+                    "end": [ 4, 2 ]
+                }
+            ]
+        },
+        {
+            "levelNumber": 2,
+            "gridSize": 5,
+            "nodes": [
+                {
+                    "color": "Red",
+                    "start": [ 3, 3 ],
+                    "end": [ 2, 4 ]
+                },
+                {
+                    "color": "Green",
+                    "start": [ 1, 2 ],
+                    "end": [ 3, 2 ]
+                },
+                {
+                    "color": "Blue",
+                    "start": [ 3, 0 ],
+                    "end": [ 4, 2 ]
+                },
+                {
+                    "color": "Orange",
+                    "start": [ 0, 0 ],
+                    "end": [ 2, 0 ]
+                },
+                {
+                    "color": "Purple",
+                    "start": [ 0, 2 ],
+                    "end": [ 2, 3 ]
+                }
+            ]
+        }
+    ]
+}

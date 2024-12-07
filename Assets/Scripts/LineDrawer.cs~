@@ -1,0 +1,37 @@
+using UnityEngine;
+
+public class LineDrawer : MonoBehaviour
+{
+    public Color lineColor;
+    private LineRenderer lineRenderer;
+    private Vector3 startPos;
+
+    private void Start()
+    {
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
+        lineRenderer.positionCount = 0;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+    }
+
+    public void StartLine(Vector3 start)
+    {
+        startPos = start;
+        lineRenderer.positionCount = 1;
+        lineRenderer.SetPosition(0, startPos);
+        lineRenderer.startColor = lineColor;
+        lineRenderer.endColor = lineColor;
+    }
+
+    public void UpdateLine(Vector3 current)
+    {
+        lineRenderer.positionCount += 1;
+        lineRenderer.SetPosition(lineRenderer.positionCount - 1, current);
+    }
+
+    public void ClearLine()
+    {
+        lineRenderer.positionCount = 0;
+    }
+}

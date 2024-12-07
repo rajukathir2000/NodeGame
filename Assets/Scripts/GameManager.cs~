@@ -1,0 +1,32 @@
+using System.IO;
+using UnityEngine;
+
+public class GameManager : MonoBehaviour
+{
+    public GameData gameData;
+    public int currentLevel;
+
+    private void Start()
+    {
+        currentLevel = PlayerPrefs.GetInt("SelectedLevel", 1);
+        LoadLevelData();
+    }
+
+    private void LoadLevelData()
+    {
+        string jsonPath = Application.streamingAssetsPath + "/LevelData.json";
+        string jsonData = File.ReadAllText(jsonPath);
+        gameData = JsonUtility.FromJson<GameData>(jsonData);
+
+        var level = gameData.levels.Find(l => l.levelNumber == currentLevel);
+        if (level != null)
+        {
+            InitializeLevel(level);
+        }
+    }
+
+    private void InitializeLevel(LevelData level)
+    {
+        // Logic to initialize grid and place nodes based on level data
+    }
+}

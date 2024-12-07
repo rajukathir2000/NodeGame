@@ -1,0 +1,54 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class GridCellDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+{
+    private Image cellImage;
+    private GameManager gameManager;
+    private Color startColor;
+    private bool isDragging = false;
+
+    void Start()
+    {
+        cellImage = GetComponent<Image>();
+        gameManager = FindObjectOfType<GameManager>(); // Assuming there's only one GameManager
+    }
+
+    // Detect when the user clicks on a colored cell
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        // Check if the clicked cell is colored
+        if (cellImage.color != Color.white) // Assuming cells are white if they're not colored
+        {
+            startColor = cellImage.color;  // Store the color of the clicked cell
+            isDragging = true;  // Start dragging
+            ApplyColorToCell();  // Apply the color to the clicked cell immediately
+        }
+    }
+
+    // While dragging, update the color of the cell the mouse is hovering over
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (isDragging)
+        {
+            ApplyColorToCell();  // Update the color of the current cell under the mouse
+        }
+    }
+
+    // When the user releases the mouse, stop dragging
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        isDragging = false;
+    }
+
+    // Update the color of the current grid cell based on the starting color
+    private void ApplyColorToCell()
+    {
+        // Only apply the color if the cell is empty (not already colored)
+        if (cellImage.color != startColor && cellImage.color != Color.white) // White means uncolored
+        {
+            cellImage.color = startColor;  // Apply the start color to the cell
+        }
+    }
+}

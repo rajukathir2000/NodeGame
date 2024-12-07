@@ -1,0 +1,72 @@
+{
+    "levels": [
+        {
+            "levelNumber": 1,
+            "gridSize": 5,
+            "nodes": [
+                {
+                    "color": "Red",
+                    "start": [ 0, 0 ],
+                    "end": [ 4, 0 ]
+                },
+                {
+                    "color": "Green",
+                    "start": [ 1, 1 ],
+                    "end": [ 3, 3 ]
+                },
+                {
+                    "color": "Blue",
+                    "start": [ 0, 4 ],
+                    "end": [ 4, 4 ]
+                }
+            ]
+        },
+        {
+            "levelNumber": 2,
+            "gridSize": 5,
+            "nodes": [
+                {
+                    "color": "Orange",
+                    "start": [ 2, 0 ],
+                    "end": [ 2, 4 ]
+                },
+                {
+                    "color": "Purple",
+                    "start": [ 0, 2 ],
+                    "end": [ 4, 2 ]
+                },
+                {
+                    "color": "Yellow",
+                    "start": [ 0, 3 ],
+                    "end": [ 4, 1 ]
+                }
+            ]
+        }
+    ]
+}
+
+//{
+//  "levels": [
+//    {
+//      "id": 1,
+//      "nodes": [
+//        {"color": "Red", "start": [0, 2], "end": [2, 0]},
+//        {"color": "Green", "start": [0, 3], "end": [3, 2]},
+//        {"color": "Blue", "start": [0,4 ], "end": [3, 4]},
+//        {"color": "Orange", "start": [2, 1], "end": [2, 2]},
+//        {"color": "Purple", "start": [0, 4], "end": [2, 4]}
+//      ]
+//    },
+//    {
+//      "id": 2,
+//      "nodes": [
+//        {"color": "Red", "start": [3, 3], "end": [4, 2]},
+//        {"color": "Green", "start": [2, 1], "end": [2, 3]},
+//        {"color": "Blue", "start": [0, 3], "end": [2, 4]},
+//        {"color": "Orange", "start": [0, 0], "end": [0, 2]},
+//        {"color": "Purple", "start": [0, 2], "end": [3, 1]}
+//      ]
+//    }
+//  ]
+//}
+//`

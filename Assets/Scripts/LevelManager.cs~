@@ -1,0 +1,60 @@
+using UnityEngine;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+public class LevelManager : MonoBehaviour
+{
+    public static LevelManager Instance;
+    public List<Level> Levels;
+    public Level CurrentLevel;
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        LoadLevelData();
+    }
+
+    void LoadLevelData()
+    {
+        string filePath = Path.Combine(Application.streamingAssetsPath, "Levels.json");
+        if (File.Exists(filePath))
+        {
+            string json = File.ReadAllText(filePath);
+            LevelData levelData = JsonUtility.FromJson<LevelData>(json);
+            Levels = levelData.levels;
+        }
+        else
+        {
+            Debug.LogError("Levels.json not found!");
+        }
+    }
+
+    public void LoadLevel(int levelID)
+    {
+        CurrentLevel = Levels.FirstOrDefault(l => l.id == levelID);
+    }
+}
+
+[System.Serializable]
+public class Level
+{
+    public int id;
+    public List<Node> nodes;
+}
+
+[System.Serializable]
+public class Node
+{
+    public string color;
+    public int[] start;
+    public int[] end;
+}
+
+[System.Serializable]
+public class LevelData
+{
+    public List<Level> levels;
+}

@@ -1,0 +1,37 @@
+using UnityEngine;
+
+public class GridManager : MonoBehaviour
+{
+    public GameObject gridParent; // Reference to the GridParent GameObject
+    public GameObject gridCellPrefab; // Reference to the GridCell prefab
+    public int gridSize = 5; // Default grid size (5x5)
+
+    public void CreateGrid()
+    {
+        // Clear any existing grid cells
+        foreach (Transform child in gridParent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Generate the grid
+        for (int i = 0; i < gridSize; i++)
+        {
+            for (int j = 0; j < gridSize; j++)
+            {
+                // Instantiate a new grid cell
+                GameObject newCell = Instantiate(gridCellPrefab, gridParent.transform);
+
+                // Optionally name cells for debugging
+                newCell.name = $"Cell ({i},{j})";
+
+                // Pass cell coordinates to the cell script if needed
+                var cellScript = newCell.GetComponent<GridCell>();
+                if (cellScript != null)
+                {
+                    cellScript.Initialize(i, j);
+                }
+            }
+        }
+    }
+}

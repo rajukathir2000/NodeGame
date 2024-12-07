@@ -1,0 +1,26 @@
+using UnityEngine;
+
+public class GridCell : MonoBehaviour
+{
+    public int x; // Row coordinate of the cell
+    public int y; // Column coordinate of the cell
+
+    // Method to initialize the cell with its coordinates
+    public void Initialize(int row, int column)
+    {
+        x = row;
+        y = column;
+    }
+
+    // Optional: Add functionality for interactions
+    private void OnMouseDown()
+    {
+        Debug.Log($"Cell clicked: ({x}, {y})");
+    }
+
+    // Optional: Visual feedback
+    public void SetColor(Color color)
+    {
+        GetComponent<Renderer>().material.color = color;
+    }
+}
