@@ -1,0 +1,58 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GridCellChecker : MonoBehaviour
+{
+    public GameObject gridParent;      // The parent GameObject containing all the grid cells
+    public Color defaultColor;         // The default color of the grid cells
+    public GridCellDragHandler dragHandler;  // Reference to the drag handler script
+
+    private void Start()
+    {
+        // Initialize the default grid cell color (normalized to 0-1 range)
+        defaultColor = new Color(0.1132075f, 0.1019936f, 0.1019936f, 0.2705882f);
+    }
+
+    // This method is called to check if all cells are colored
+    public void CheckAllCellsColored()
+    {
+        bool allCellsColored = true;
+
+        // Iterate through all the children (grid cells) in the gridParent
+        foreach (Transform cell in gridParent.transform)
+        {
+            // Make sure the cell has an Image component and check if it's colored
+            Image cellImage = cell.GetComponent<Image>();
+            if (cellImage != null)
+            {
+                // If the cell still has the default color, we set allCellsColored to false
+                if (cellImage.color == defaultColor)
+                {
+                    allCellsColored = false;
+                    break;
+                }
+            }
+        }
+
+        // If all cells are colored, trigger the game finish logic
+        if (allCellsColored)
+        {
+            FinishGame();
+        }
+    }
+
+    // This method will be called when all cells are colored
+    private void FinishGame()
+    {
+        // For example, display a message or trigger any game finish logic
+        Debug.Log("All cells are colored! Game Over!");
+
+        // You can add any other actions you want here, such as showing a UI panel, playing a sound, etc.
+    }
+
+    // Optionally, you can also trigger this check periodically, or when a drag operation ends
+    public void OnDragEnd()
+    {
+        CheckAllCellsColored();
+    }
+}

@@ -5,99 +5,81 @@ using System.Collections.Generic;
 
 public class GridCellDragHandler : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
-    private bool isDragging = false;            // Tracks if dragging is in progress
-    private Color initialColor;                // Color of the initially clicked cell
-    private List<Image> draggedCells;          // List of cells dragged over
-    private Color defaultColor;                // Default color of grid cells (RGB: 29, 26, 26)
-    private Image clickedCellImage;            // The cell that was initially clicked
+    private bool isDragging = false;
+    private Color initialColor, defaultColor;
+    private List<Image> draggedCells;
+    private Image clickedCellImage;
+    private GameManager gameManager;
+    private Vector2Int endpoint;
 
     private void Start()
     {
-        // Initialize the default grid cell color (normalized to 0-1 range)
+        
         defaultColor = new Color(0.1132075f, 0.1019936f, 0.1019936f, 0.2705882f);
+        draggedCells = new List<Image>();
+        gameManager = FindObjectOfType<GameManager>();
+        if (gameManager == null)
+        {
+            Debug.LogError("GameManager not found in the scene!");
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Debug.Log("Started");
-        isDragging = true;
-        draggedCells = new List<Image>();
-
-        // Detect the clicked cell
+        isDragging = false;
         GameObject clickedCell = eventData.pointerCurrentRaycast.gameObject;
-
         if (clickedCell != null && clickedCell.CompareTag("BGCell"))
         {
             clickedCellImage = clickedCell.GetComponent<Image>();
-
             if (clickedCellImage != null)
             {
-                // Check if the clicked cell's color is not the default color
-                if (clickedCellImage.color != defaultColor)
+                LevelData currentLevelData = gameManager.gameData.levels.Find(l => l.levelNumber == PlayerPrefs.GetInt("SelectedLevel", 1));
+                if (currentLevelData != null)
                 {
-                    initialColor = clickedCellImage.color; // Store the initial color of the clicked cell
-                    Debug.Log($"Initial color selected: {initialColor}");
-                }
-                else
-                {
-                    // If the clicked cell's color is the default, cancel the drag and give feedback
-                    isDragging = false;
-                    Debug.Log("Click ignored: Cell has the default color.");
+                    foreach (var node in currentLevelData.nodes)
+                    {
+                        if (ColorUtility.TryParseHtmlString(node.color, out Color nodeColor))
+                        {
+                            Vector2Int startCell = new Vector2Int(node.start[0], node.start[1]);
+                            Vector2Int endCell = new Vector2Int(node.end[0], node.end[1]);
+                            Vector2Int clickedPosition = gameManager.GetCellPosition(clickedCell.name);
+                            if (clickedPosition == startCell || clickedPosition == endCell)
+                            {
+                                initialColor = nodeColor;
+                                endpoint = clickedPosition == startCell ? endCell : startCell;
+                                isDragging = true;
+                                Debug.Log($"Started dragging from {clickedCell.name} with color {initialColor}. Endpoint: {endpoint}");
+                                return;
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-
     public void OnDrag(PointerEventData eventData)
     {
-        if (isDragging)
+        if (!isDragging) return;
+        PointerEventData pointerEventData = new PointerEventData(EventSystem.current)
         {
-            // Perform a raycast to detect cells under the pointer during dragging
-            PointerEventData pointerEventData = new PointerEventData(EventSystem.current)
+            position = eventData.position
+        };
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerEventData, results);
+        foreach (var result in results)
+        {
+            GameObject targetCell = result.gameObject;
+            if (targetCell != null && targetCell.CompareTag("BGCell"))
             {
-                position = eventData.position
-            };
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerEventData, results);
-
-            foreach (var result in results)
-            {
-                GameObject targetCell = result.gameObject;
-
-                if (targetCell != null && targetCell.CompareTag("BGCell"))
+                Image targetImage = targetCell.GetComponent<Image>();
+                if (targetImage != null && targetImage.color == defaultColor)
                 {
-                    Image targetImage = targetCell.GetComponent<Image>();
-
-                    if (targetImage != null)
+                    targetImage.color = initialColor;
+                    if (!draggedCells.Contains(targetImage))
                     {
-                        // Allow dragging only on cells with default color or already changed to clicked color
-                        if (targetImage.color == defaultColor)
-                        {
-                            // Change the dragged cell's color to the initially clicked cell's color
-                            targetImage.color = initialColor;
-
-                            // Add the cell to the list of dragged cells if not already present
-                            if (!draggedCells.Contains(targetImage))
-                            {
-                                draggedCells.Add(targetImage);
-                            }
-
-                            Debug.Log($"Dragging over: {targetCell.name}, Color Changed: {initialColor}");
-                        }
-                        else if (targetImage.color == initialColor || targetImage == clickedCellImage)
-                        {
-                            // Allow dragging to proceed if the cell has already been changed to the clicked color
-                            Debug.Log($"Dragging over valid cell: {targetCell.name}. Already colored.");
-                        }
-                        else
-                        {
-                            // If the dragged cell is neither the default nor the valid clicked color, cancel the drag
-                            CancelDrag();
-                            Debug.Log($"Dragging over invalid cell: {targetCell.name}. Drag cancelled.");
-                            return;
-                        }
+                        draggedCells.Add(targetImage);
                     }
                 }
             }
@@ -106,31 +88,48 @@ public class GridCellDragHandler : MonoBehaviour, IPointerDownHandler, IDragHand
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (isDragging)
+        if (!isDragging) return;
+            GameObject releasedCell = eventData.pointerCurrentRaycast.gameObject;
+        if (releasedCell != null && releasedCell.CompareTag("BGCell"))
         {
-            isDragging = false;
+            Vector2Int releasedPosition = gameManager.GetCellPosition(releasedCell.name);
 
-            // Clear the list of dragged cells
-            draggedCells.Clear();
-
-            Debug.Log("Drag operation completed.");
+            if (releasedPosition != endpoint)
+            {
+                ResetDraggedCells();
+            }
+        }
+        else
+        {
+            ResetDraggedCells();
+        }
+        isDragging = false;
+        if (CheckGameCompletion())
+        {
+            gameManager.ShowWinText();
         }
     }
 
-    private void CancelDrag()
+    private bool CheckGameCompletion()
     {
-        // Reset all dragged cells to their default color
-        foreach (Image cell in draggedCells)
+        Transform gridParent = gameManager.gridParent.transform;
+        foreach (Transform cellTransform in gridParent)
+        {
+            Image cellImage = cellTransform.GetComponent<Image>();
+            if (cellImage != null && cellImage.color == defaultColor)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void ResetDraggedCells()
+    {
+        foreach (var cell in draggedCells)
         {
             cell.color = defaultColor;
         }
-
-        // Clear the list of dragged cells
         draggedCells.Clear();
-
-        // Cancel dragging
-        isDragging = false;
-
-        Debug.Log("Drag operation cancelled. Cells reset to default.");
     }
 }

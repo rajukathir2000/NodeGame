@@ -11,7 +11,7 @@ namespace Connect.Core
 
         [SerializeField] private GameObject _playPanel;
         [SerializeField] private GameObject _levelPanel;
-
+        public AudioSource clickSound;
 
         public UnityAction LevelOpened;
 
@@ -27,12 +27,14 @@ namespace Connect.Core
 
         public void ClickedPlay()
         {
+            clickSound.Play();
             _playPanel.SetActive(false);
             _levelPanel.SetActive(true);
         }
 
         public void ClickedBackToStage()
         {
+            clickSound.Play();
             _playPanel.SetActive(true);
             _levelPanel.SetActive(false);
         }

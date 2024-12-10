@@ -1,0 +1,13 @@
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class Restart : MonoBehaviour
+{
+    public AudioSource clickSound;
+
+    public void RestartGame()
+    {
+        clickSound.Play();
+        SceneManager.LoadScene(1);
+    }
+}
